@@ -1,0 +1,73 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% load blog_tags %}
+
+{% block content %}
+
+<div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+    <button class="btn btn-outline-success" type="button"><a href="{% url 'blog:post_list' %}">Back</a></button>
+    <div class="col-md-6 px-0">
+        <h1 class="display-4 fst-italic">{{ post.title }}</h1>
+        <p class="lead my-3">{{ post.body|markdown }}</p>
+        <div class="mb-1 text-muted">{{ post.publish }}</div>
+        <p class="lead mb-0"><a href="{% url 'blog:post_share' post.id %}" class="text-white fw-bold">Share</a></p>
+        <div class="col-auto d-none d-lg-block" style="float: right;">
+            <img class="img" src="{{ post.cover.url }}" width="200" height="250" style="float:right; max-width:600px"
+                aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <title>Placeholder</title>
+            </img>
+        </div>
+    </div>
+</div>
+<div class="similarpost mx-2">
+    <h2>Similar posts</h2>
+    {% for post in similar_posts %}
+    <p>
+        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+    </p>
+    {% empty %}
+    There are no similar posts yet.
+    {% endfor %}
+</div>
+
+<div class="numcomment mx-3">
+    {% with comments.count as total_comments %}
+    <h2>
+        {{ total_comments }} comment{{ total_comments|pluralize }}
+    </h2>
+    {% endwith %}
+</div>
+
+<div class="commentdetail mx-5">
+    {% for comment in comments %}
+    <div class="comment">
+        <p class="info text-muted"><small>
+                Comment {{ forloop.counter }} by {{ comment.name }}
+                {{ comment.created }}</small>
+        </p>
+        {{ comment.body|linebreaks }}
+        <hr>
+    </div>
+    {% empty %}
+    <p>There are no comments yet.</p>
+    {% endfor %}
+</div>
+
+<div class="container mx-5">
+    {% if new_comment %}
+    <h2>Your comment has been added.</h2>
+    {% else %}
+    <h2>Add a new comment</h2>
+    <form action="." method="post">
+        {% csrf_token %}
+        {{ comment_form|crispy }}
+        <p><input class="btn btn-outline-success" type="submit" value="Add comment"></p>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}
